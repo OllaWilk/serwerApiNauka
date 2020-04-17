@@ -1,6 +1,6 @@
 const express = require('express');
-const cors = require('cors');
-const uuidv4 = require('uuid/v4');
+//const cors = require('cors');
+const uuidv1 = require('uuid/v1');
 
 const app = express();
 
@@ -14,9 +14,7 @@ const db = [
 /*middleware*/
 
 app.use(express.urlencoded({ extended: false }));
-
 app.use(express.json());
-
 //app.use(cors());
 
 /*endpoints */
@@ -28,32 +26,41 @@ app.get('/testimonials', (req, res) => {
 
 //GET /testimonials/:id – zwracamy tylko jeden element tablicy, zgodny z :id
 app.get('/testimonials/:id', (req, res) => {
-    res.json(db[req.params.id - 1]);
+    res.json(db.filter(data => data.id == req.params.id));
 });
 
-//GET /testimonials/random – zwracamy losowy element z tablicy.
+//!!!!! status 200 !!!! GET /testimonials/random – zwracamy losowy element z tablicy.
 app.get('/testimonials/random', (req, res) => {
-    res.json(db[Math.floor(Math.random()*db.length)]);
+    res.json(db[Math.floor(Math.random() * db.length)]);
 });
 
 //POST /testimonials – dodajemy nowy element do tablicy. Możesz założyć, że body przekazywane przez klienta będzie obiektem z dwoma atrybutami author i text. Id dodawanego elementu musisz losować.
 app.post('/testimonials', (req, res) => {
     const {author, text} = req.body;
-    const id = uuidv4();
-    res.json({id:id, author:author, text:text});
+    const id = uuidv1();
+    res.json({ message: 'OK' });
 });
 
-//PUT /testimonials/:id – modyfikujemy atrybuty author i text elementu tablicy o pasującym :id. Załóż, że body otrzymane w requeście będzie obiektem z atrybutami author i text
+//!!!!! message not found? //PUT /testimonials/:id – modyfikujemy atrybuty author i text elementu tablicy o pasującym :id. Załóż, że body otrzymane w requeście będzie obiektem z atrybutami author i text
 app.put('/testimonials/:id', (req, res) => {
-    const {author, text} = req.body;
+    db = db.map(data => data.id == req.params.id? {...data, author: req.body.author, text: req.body.text } : data);
     res.json({ message: 'OK' });
 });
 
 //DELETE /testimonials/:id – usuwamy z tablicy wpis o podanym id.
-app.get('/testimonials/:id', (req, res) => {
+app.delete('/testimonials/:id', (req, res) => {
+    db = db.filter(data => data.id != req.params.id);
     res.json({ message: 'OK' });
 });
 
+
+
+
+
+/*Middleware -Error message*/
+app.use((req, res) => {
+    res.status(404).json({ message: 'Not found...' });
+})
 
 app.listen(8000, () => {
   console.log('Server is running on port 8000');
