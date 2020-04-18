@@ -19,7 +19,10 @@ router.route('/concerts').post((req, res) => {
 });
 
 router.route('/concerts/:id').put((req, res) => {
-    db.concerts = db.concerts.map(data => data.id == req.params.id? {...data, performer: req.body.performer, genre: req.body.genre, price: req.body.price, day: req.body.day, image: req.body.image } : data);
+    db.concerts = db.concerts.map(data =>
+        data.id == req.params.id?
+        {...data, performer: req.body.performer, genre: req.body.genre, price: req.body.price, day: req.body.day, image: req.body.image}
+        : data);
     res.json({ message: 'OK' });
 });
 
